@@ -17,27 +17,24 @@
 
 ### Week 1-2: Technical Planning & Architecture
 
-
-- [ ] Design database schema in Supabase
-  - [ ] Users/Profiles table with authentication
-  - [ ] Videos table (metadata, status, URLs)
-  - [ ] Credits/Wallet table
-  - [ ] Transactions table
-  - [ ] Set up Row Level Security (RLS) policies
-- [ ] Define API endpoints and server actions structure
-- [ ] Plan credit pricing model and tiers
+- [x] Design database schema in Supabase
+  - [x] Users/Profiles table with authentication
+  - [x] Videos table (metadata, status, URLs)
+  - [x] Credits/Wallet table
+  - [x] Transactions table
+  - [x] Set up Row Level Security (RLS) policies
+- [x] Define API endpoints and server actions structure
+- [x] Plan credit pricing model and tiers
 
 ### Week 3-4: UI/UX Design
-
-- [ ] Complete wireframes for all pages (see `wideframes.md`)
+- [x] Design component library based on Tailwind CSS 4 (see `ui-design-kit.md` and `wideframes.md`)
+- [ ] Complete frontend for all pages (see `wideframes.md` and `component-library.md`)
   - [ ] Landing page
   - [ ] Registration/Login flows
   - [ ] Creation Dashboard
   - [ ] Video Gallery
   - [ ] Profile/Settings
   - [ ] Payment pages
-- [ ] Create high-fidelity mockups (Figma/design tool)
-- [ ] Design component library based on Tailwind CSS 4
 - [ ] Prepare Vietnamese content and translations
 - [ ] Create brand assets (logo, colors, typography)
 - [ ] Design mobile responsive layouts
