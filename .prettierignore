@@ -1,0 +1,34 @@
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Build outputs
+.next/
+out/
+build/
+dist/
+
+# Environment files
+.env
+.env*.local
+
+# Testing
+coverage/
+
+# Misc
+.DS_Store
+*.log
+*.tsbuildinfo
+
+# IDE
+.vscode/
+.idea/
+
+# Package manager lock files (optional - comment out if you want to format them)
+package-lock.json
+pnpm-lock.yaml
+yarn.lock
+
+# Special formatting files
+SETUP.md

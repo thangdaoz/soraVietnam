@@ -1,0 +1,218 @@
+@import 'tailwindcss';
+
+@theme {
+  /* ========================================
+     TYPOGRAPHY - UI Design Kit
+     ======================================== */
+
+  /* Font Families */
+  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-heading: 'Poppins', system-ui, -apple-system, sans-serif;
+
+  /* Font Sizes - Typographic Scale */
+  --font-size-h1: 2.25rem; /* 36px */
+  --font-size-h2: 1.5rem; /* 24px */
+  --font-size-h3: 1.25rem; /* 20px */
+  --font-size-body: 1rem; /* 16px */
+  --font-size-small: 0.875rem; /* 14px */
+
+  /* ========================================
+     COLOR PALETTE - UI Design Kit
+     ======================================== */
+
+  /* Primary Color - Indigo (#4F46E5) */
+  --color-primary-50: #eef2ff;
+  --color-primary-100: #e0e7ff;
+  --color-primary-200: #c7d2fe;
+  --color-primary-300: #a5b4fc;
+  --color-primary-400: #818cf8;
+  --color-primary-500: #6366f1;
+  --color-primary-600: #4f46e5; /* Main brand color */
+  --color-primary-700: #4338ca;
+  --color-primary-800: #3730a3;
+  --color-primary-900: #312e81;
+  --color-primary-950: #1e1b4b;
+
+  /* Secondary Color - Emerald (#10B981) */
+  --color-secondary-50: #ecfdf5;
+  --color-secondary-100: #d1fae5;
+  --color-secondary-200: #a7f3d0;
+  --color-secondary-300: #6ee7b7;
+  --color-secondary-400: #34d399;
+  --color-secondary-500: #10b981; /* Accent color */
+  --color-secondary-600: #059669;
+  --color-secondary-700: #047857;
+  --color-secondary-800: #065f46;
+  --color-secondary-900: #064e3b;
+  --color-secondary-950: #022c22;
+
+  /* Neutral Color - Slate */
+  --color-neutral-50: #f8fafc; /* Background (Subtle) */
+  --color-neutral-100: #f1f5f9;
+  --color-neutral-200: #e2e8f0; /* Border */
+  --color-neutral-300: #cbd5e1;
+  --color-neutral-400: #94a3b8;
+  --color-neutral-500: #64748b; /* Text (Light) */
+  --color-neutral-600: #475569; /* Text (Medium) */
+  --color-neutral-700: #334155;
+  --color-neutral-800: #1e293b;
+  --color-neutral-900: #0f172a; /* Text (Dark) */
+  --color-neutral-950: #020617;
+
+  /* Feedback Colors */
+  --color-error: #ef4444; /* Red */
+  --color-warning: #f59e0b; /* Amber */
+  --color-success: #10b981; /* Emerald (same as secondary) */
+
+  /* ========================================
+     SPACING & SIZING
+     ======================================== */
+
+  /* Border Radius */
+  --radius-card: 0.5rem; /* 8px for cards */
+  --radius-button: 0.375rem; /* 6px for buttons */
+  --radius-input: 0.375rem; /* 6px for inputs */
+
+  /* Additional breakpoints */
+  --breakpoint-3xl: 1920px;
+}
+
+/* ========================================
+   BASE STYLES
+   ======================================== */
+@layer base {
+  html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    font-family: var(--font-sans);
+    font-size: var(--font-size-body);
+    color: var(--color-neutral-900);
+    background-color: var(--color-neutral-50);
+  }
+
+  /* Headings */
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: var(--font-heading);
+  }
+
+  h1 {
+    font-size: var(--font-size-h1);
+    font-weight: 600;
+  }
+
+  h2 {
+    font-size: var(--font-size-h2);
+    font-weight: 600;
+  }
+
+  h3 {
+    font-size: var(--font-size-h3);
+    font-weight: 500;
+  }
+}
+
+/* ========================================
+   COMPONENT STYLES - UI Design Kit
+   ======================================== */
+@layer components {
+  /* Primary Button */
+  .btn-primary {
+    background-color: var(--color-primary-600);
+    color: white;
+    padding: 0.625rem 1.25rem;
+    border-radius: var(--radius-button);
+    font-weight: 500;
+    transition: background-color 0.2s;
+  }
+
+  .btn-primary:hover:not(:disabled) {
+    background-color: var(--color-primary-700);
+  }
+
+  .btn-primary:disabled {
+    background-color: var(--color-neutral-200);
+    color: var(--color-neutral-500);
+    cursor: not-allowed;
+  }
+
+  /* Secondary Button */
+  .btn-secondary {
+    background-color: white;
+    color: var(--color-primary-600);
+    border: 1px solid var(--color-primary-600);
+    padding: 0.625rem 1.25rem;
+    border-radius: var(--radius-button);
+    font-weight: 500;
+    transition: background-color 0.2s;
+  }
+
+  .btn-secondary:hover:not(:disabled) {
+    background-color: var(--color-primary-50);
+  }
+
+  /* Input Fields */
+  .input-field {
+    background-color: white;
+    border: 1px solid var(--color-neutral-200);
+    border-radius: var(--radius-input);
+    padding: 0.625rem 0.875rem;
+    font-size: var(--font-size-body);
+    transition: border-color 0.2s;
+  }
+
+  .input-field:focus {
+    outline: none;
+    border-color: var(--color-primary-600);
+  }
+
+  .input-field.error {
+    border-color: var(--color-error);
+  }
+
+  .input-field::placeholder {
+    color: var(--color-neutral-500);
+  }
+
+  /* Cards */
+  .card {
+    background-color: white;
+    border-radius: var(--radius-card);
+    box-shadow:
+      0 1px 3px 0 rgba(0, 0, 0, 0.1),
+      0 1px 2px 0 rgba(0, 0, 0, 0.06);
+    padding: 1.5rem;
+  }
+
+  .card-bordered {
+    background-color: white;
+    border: 1px solid var(--color-neutral-200);
+    border-radius: var(--radius-card);
+    padding: 1.5rem;
+  }
+}
+
+/* ========================================
+   CUSTOM UTILITIES
+   ======================================== */
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  /* Typography Utilities */
+  .text-body {
+    font-size: var(--font-size-body);
+  }
+
+  .text-small {
+    font-size: var(--font-size-small);
+  }
+}
