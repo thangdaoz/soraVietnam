@@ -6,13 +6,13 @@ const badgeVariants = cva(
   {
     variants: {
       variant: {
-        default: 'border-transparent bg-gray-900 text-white hover:bg-gray-800',
-        secondary: 'border-transparent bg-gray-100 text-gray-900 hover:bg-gray-200',
+        default: 'border-transparent bg-neutral-900 text-white hover:bg-neutral-800',
+        secondary: 'border-transparent bg-neutral-100 text-neutral-900 hover:bg-neutral-200',
         success: 'border-transparent bg-green-100 text-green-800 hover:bg-green-200',
         warning: 'border-transparent bg-yellow-100 text-yellow-800 hover:bg-yellow-200',
         danger: 'border-transparent bg-red-100 text-red-800 hover:bg-red-200',
         info: 'border-transparent bg-blue-100 text-blue-800 hover:bg-blue-200',
-        outline: 'border-gray-300 text-gray-700 hover:bg-gray-100',
+        outline: 'border-neutral-300 text-neutral-700 hover:bg-neutral-100',
       },
     },
     defaultVariants: {

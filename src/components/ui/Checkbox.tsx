@@ -1,7 +1,7 @@
 import React from 'react';
 
 export interface CheckboxProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'type'> {
-  label?: string;
+  label?: React.ReactNode;
   error?: string;
   helperText?: string;
 }

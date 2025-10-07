@@ -28,16 +28,16 @@
 
 ### Week 3-4: UI/UX Design
 - [x] Design component library based on Tailwind CSS 4 (see `ui-design-kit.md` and `wideframes.md`)
-- [ ] Complete frontend for all pages (see `wideframes.md` and `component-library.md`)
-  - [ ] Landing page
-  - [ ] Registration/Login flows
-  - [ ] Creation Dashboard
-  - [ ] Video Gallery
-  - [ ] Profile/Settings
-  - [ ] Payment pages
+- [x] Complete frontend for all pages, responsive layouts (see `wideframes.md` and `component-library.md`)
+  - [x] Landing page (fully responsive with hero, stats, how-it-works, features, pricing, CTA sections)
+  - [x] Registration/Login flows (with social login options)
+  - [x] Creation Dashboard (text-to-video and image-to-video modules)
+  - [x] Video Gallery (grid view, filters, status badges)
+  - [x] Profile/Settings (3 tabs: profile, billing history, purchase credits)
+  - [x] Payment pages (checkout with multiple payment methods)
 - [ ] Prepare Vietnamese content and translations
 - [ ] Create brand assets (logo, colors, typography)
-- [ ] Design mobile responsive layouts
+
 
 ---
 
@@ -51,7 +51,6 @@
   - [ ] Configure authentication providers
     - [ ] Email/Password
     - [ ] Google OAuth
-    - [ ] Facebook OAuth
   - [ ] Set up email templates (verification, password reset)
   - [ ] Configure storage buckets for video files
 - [ ] **User Management**

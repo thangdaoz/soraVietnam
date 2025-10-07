@@ -6,9 +6,9 @@ const selectVariants = cva(
   {
     variants: {
       variant: {
-        default: 'border-gray-300 focus-visible:ring-blue-600',
+        default: 'border-neutral-300 focus-visible:ring-primary-600',
         error: 'border-red-500 focus-visible:ring-red-600',
-        success: 'border-green-500 focus-visible:ring-green-600',
+        success: 'border-secondary-500 focus-visible:ring-secondary-600',
       },
       selectSize: {
         sm: 'h-9 text-sm',
@@ -51,7 +51,7 @@ const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
     return (
       <div className="w-full">
         {label && (
-          <label htmlFor={selectId} className="mb-2 block text-sm font-medium text-gray-700">
+          <label htmlFor={selectId} className="mb-2 block text-sm font-medium text-neutral-700">
             {label}
             {props.required && <span className="ml-1 text-red-500">*</span>}
           </label>
@@ -83,7 +83,7 @@ const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
           </p>
         )}
         {helperText && !error && (
-          <p id={`${selectId}-helper`} className="mt-1 text-sm text-gray-500">
+          <p id={`${selectId}-helper`} className="mt-1 text-sm text-neutral-500">
             {helperText}
           </p>
         )}

@@ -4,9 +4,9 @@ import { cva, type VariantProps } from 'class-variance-authority';
 const cardVariants = cva('rounded-lg border bg-white shadow-sm transition-shadow', {
   variants: {
     variant: {
-      default: 'border-gray-200',
-      elevated: 'border-gray-200 shadow-md hover:shadow-lg',
-      outlined: 'border-2 border-gray-300',
+      default: 'border-neutral-200',
+      elevated: 'border-neutral-200 shadow-md hover:shadow-lg',
+      outlined: 'border-2 border-neutral-300',
       ghost: 'border-transparent shadow-none',
     },
     padding: {
@@ -58,7 +58,7 @@ const CardDescription = React.forwardRef<
   HTMLParagraphElement,
   React.HTMLAttributes<HTMLParagraphElement>
 >(({ className, ...props }, ref) => (
-  <p ref={ref} className={`text-sm text-gray-500 ${className || ''}`} {...props} />
+  <p ref={ref} className={`text-sm text-neutral-500 ${className || ''}`} {...props} />
 ));
 
 CardDescription.displayName = 'CardDescription';
