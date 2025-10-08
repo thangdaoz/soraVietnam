@@ -45,14 +45,12 @@
 
 ### Week 5-8: Backend & Authentication
 
-- [ ] **Supabase Setup**
-  - [ ] Create production Supabase project
-  - [ ] Implement database schema
-  - [ ] Configure authentication providers
-    - [ ] Email/Password
-    - [ ] Google OAuth
-  - [ ] Set up email templates (verification, password reset)
-  - [ ] Configure storage buckets for video files
+- [x] **Supabase Setup**
+  - [x] Create production Supabase project
+  - [x] Configure environment variables
+  - [x] Apply database migrations (run schema)
+  - [x] Configure authentication providers (Email + Google OAuth)
+  - [x] Set up email templates (verification, password reset)
 - [ ] **User Management**
   - [ ] Build user registration flow
   - [ ] Implement email verification

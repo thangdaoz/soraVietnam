@@ -46,31 +46,58 @@ Direct INSERT is not allowed to ensure consistent initial state.';
 -- ----------------------------------------------------------------------------
 
 -- Revoke default PUBLIC access
-REVOKE EXECUTE ON FUNCTION public.user_has_credits FROM PUBLIC;
-REVOKE EXECUTE ON FUNCTION public.deduct_credits_for_video FROM PUBLIC;
-REVOKE EXECUTE ON FUNCTION public.add_credits_from_purchase FROM PUBLIC;
-REVOKE EXECUTE ON FUNCTION public.refund_credits FROM PUBLIC;
-REVOKE EXECUTE ON FUNCTION public.create_video_request FROM PUBLIC;
-REVOKE EXECUTE ON FUNCTION public.create_video_generation FROM PUBLIC;
-REVOKE EXECUTE ON FUNCTION public.get_user_stats FROM PUBLIC;
-REVOKE EXECUTE ON FUNCTION public.soft_delete_video FROM PUBLIC;
-REVOKE EXECUTE ON FUNCTION public.restore_video FROM PUBLIC;
-REVOKE EXECUTE ON FUNCTION public.refund_video_credits FROM PUBLIC;
-REVOKE EXECUTE ON FUNCTION public.get_credit_info FROM PUBLIC;
+-- Use DO block to handle functions that might not exist
+DO $$ 
+BEGIN
+  -- Only revoke if function exists
+  EXECUTE 'REVOKE EXECUTE ON FUNCTION public.user_has_credits FROM PUBLIC' 
+    WHERE EXISTS (SELECT 1 FROM pg_proc WHERE proname = 'user_has_credits');
+  EXECUTE 'REVOKE EXECUTE ON FUNCTION public.deduct_credits_for_video FROM PUBLIC'
+    WHERE EXISTS (SELECT 1 FROM pg_proc WHERE proname = 'deduct_credits_for_video');
+  EXECUTE 'REVOKE EXECUTE ON FUNCTION public.add_credits_from_purchase FROM PUBLIC'
+    WHERE EXISTS (SELECT 1 FROM pg_proc WHERE proname = 'add_credits_from_purchase');
+  EXECUTE 'REVOKE EXECUTE ON FUNCTION public.refund_credits FROM PUBLIC'
+    WHERE EXISTS (SELECT 1 FROM pg_proc WHERE proname = 'refund_credits');
+  EXECUTE 'REVOKE EXECUTE ON FUNCTION public.create_video_generation FROM PUBLIC'
+    WHERE EXISTS (SELECT 1 FROM pg_proc WHERE proname = 'create_video_generation');
+  EXECUTE 'REVOKE EXECUTE ON FUNCTION public.get_user_stats FROM PUBLIC'
+    WHERE EXISTS (SELECT 1 FROM pg_proc WHERE proname = 'get_user_stats');
+  EXECUTE 'REVOKE EXECUTE ON FUNCTION public.soft_delete_video FROM PUBLIC'
+    WHERE EXISTS (SELECT 1 FROM pg_proc WHERE proname = 'soft_delete_video');
+  EXECUTE 'REVOKE EXECUTE ON FUNCTION public.restore_video FROM PUBLIC'
+    WHERE EXISTS (SELECT 1 FROM pg_proc WHERE proname = 'restore_video');
+  EXECUTE 'REVOKE EXECUTE ON FUNCTION public.refund_video_credits FROM PUBLIC'
+    WHERE EXISTS (SELECT 1 FROM pg_proc WHERE proname = 'refund_video_credits');
+  EXECUTE 'REVOKE EXECUTE ON FUNCTION public.get_credit_info FROM PUBLIC'
+    WHERE EXISTS (SELECT 1 FROM pg_proc WHERE proname = 'get_credit_info');
+END $$;
 
 -- Grant ONLY to authenticated users
--- (Note: These grants may already exist, but we're being explicit)
-GRANT EXECUTE ON FUNCTION public.user_has_credits TO authenticated;
-GRANT EXECUTE ON FUNCTION public.deduct_credits_for_video TO authenticated;
-GRANT EXECUTE ON FUNCTION public.add_credits_from_purchase TO authenticated;
-GRANT EXECUTE ON FUNCTION public.refund_credits TO authenticated;
-GRANT EXECUTE ON FUNCTION public.create_video_request TO authenticated;
-GRANT EXECUTE ON FUNCTION public.create_video_generation TO authenticated;
-GRANT EXECUTE ON FUNCTION public.get_user_stats TO authenticated;
-GRANT EXECUTE ON FUNCTION public.soft_delete_video TO authenticated;
-GRANT EXECUTE ON FUNCTION public.restore_video TO authenticated;
-GRANT EXECUTE ON FUNCTION public.refund_video_credits TO authenticated;
-GRANT EXECUTE ON FUNCTION public.get_credit_info TO authenticated;
+-- Use DO block to handle functions that might not exist
+DO $$
+BEGIN
+  -- Only grant if function exists
+  EXECUTE 'GRANT EXECUTE ON FUNCTION public.user_has_credits TO authenticated'
+    WHERE EXISTS (SELECT 1 FROM pg_proc WHERE proname = 'user_has_credits');
+  EXECUTE 'GRANT EXECUTE ON FUNCTION public.deduct_credits_for_video TO authenticated'
+    WHERE EXISTS (SELECT 1 FROM pg_proc WHERE proname = 'deduct_credits_for_video');
+  EXECUTE 'GRANT EXECUTE ON FUNCTION public.add_credits_from_purchase TO authenticated'
+    WHERE EXISTS (SELECT 1 FROM pg_proc WHERE proname = 'add_credits_from_purchase');
+  EXECUTE 'GRANT EXECUTE ON FUNCTION public.refund_credits TO authenticated'
+    WHERE EXISTS (SELECT 1 FROM pg_proc WHERE proname = 'refund_credits');
+  EXECUTE 'GRANT EXECUTE ON FUNCTION public.create_video_generation TO authenticated'
+    WHERE EXISTS (SELECT 1 FROM pg_proc WHERE proname = 'create_video_generation');
+  EXECUTE 'GRANT EXECUTE ON FUNCTION public.get_user_stats TO authenticated'
+    WHERE EXISTS (SELECT 1 FROM pg_proc WHERE proname = 'get_user_stats');
+  EXECUTE 'GRANT EXECUTE ON FUNCTION public.soft_delete_video TO authenticated'
+    WHERE EXISTS (SELECT 1 FROM pg_proc WHERE proname = 'soft_delete_video');
+  EXECUTE 'GRANT EXECUTE ON FUNCTION public.restore_video TO authenticated'
+    WHERE EXISTS (SELECT 1 FROM pg_proc WHERE proname = 'restore_video');
+  EXECUTE 'GRANT EXECUTE ON FUNCTION public.refund_video_credits TO authenticated'
+    WHERE EXISTS (SELECT 1 FROM pg_proc WHERE proname = 'refund_video_credits');
+  EXECUTE 'GRANT EXECUTE ON FUNCTION public.get_credit_info TO authenticated'
+    WHERE EXISTS (SELECT 1 FROM pg_proc WHERE proname = 'get_credit_info');
+END $$;
 
 -- ----------------------------------------------------------------------------
 -- Functions that can be called by BOTH authenticated AND anonymous users
@@ -78,9 +105,16 @@ GRANT EXECUTE ON FUNCTION public.get_credit_info TO authenticated;
 
 -- get_video_pricing should be callable by anonymous users
 -- (So they can see prices before signing up)
-REVOKE EXECUTE ON FUNCTION public.get_video_pricing FROM PUBLIC;
-GRANT EXECUTE ON FUNCTION public.get_video_pricing TO authenticated, anon;
+DO $$
+BEGIN
+  -- Only revoke/grant if function exists
+  IF EXISTS (SELECT 1 FROM pg_proc WHERE proname = 'get_video_pricing') THEN
+    EXECUTE 'REVOKE EXECUTE ON FUNCTION public.get_video_pricing FROM PUBLIC';
+    EXECUTE 'GRANT EXECUTE ON FUNCTION public.get_video_pricing TO authenticated, anon';
+  END IF;
+END $$;
 
+-- Add comment separately (outside DO block to avoid delimiter conflicts)
 COMMENT ON FUNCTION public.get_video_pricing IS 
 'Publicly accessible function to retrieve video pricing. 
 Allows anonymous users to see prices before signup.';

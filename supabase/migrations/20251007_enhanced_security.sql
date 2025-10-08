@@ -196,9 +196,17 @@ COMMENT ON INDEX videos_user_active_idx IS
 
 -- Add CHECK constraint to ensure id and user_id are always in sync
 -- This prevents data corruption from manual SQL updates
-ALTER TABLE public.profiles 
-ADD CONSTRAINT IF NOT EXISTS profiles_id_user_id_match 
-CHECK (id = user_id);
+DO $$ 
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_constraint 
+    WHERE conname = 'profiles_id_user_id_match'
+  ) THEN
+    ALTER TABLE public.profiles 
+    ADD CONSTRAINT profiles_id_user_id_match 
+    CHECK (id = user_id);
+  END IF;
+END $$;
 
 COMMENT ON CONSTRAINT profiles_id_user_id_match ON public.profiles IS
 'Ensures id and user_id always match. Redundancy is intentional for query performance.';
