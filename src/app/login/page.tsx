@@ -1,9 +1,79 @@
+'use client';
+
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
 import { Checkbox } from '@/components/ui/Checkbox';
+import { Alert, AlertTitle, AlertDescription } from '@/components/ui/Alert';
+import { signIn, signInWithOAuth } from '@/lib/actions/auth';
 
 export default function LoginPage() {
+  const router = useRouter();
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string[]>>({});
+
+  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setIsLoading(true);
+    setError(null);
+    setFieldErrors({});
+
+    const formData = new FormData(event.currentTarget);
+    
+    const result = await signIn(formData);
+
+    if (!result.success) {
+      setError(result.error);
+      if (result.errors) {
+        setFieldErrors(result.errors);
+      }
+      setIsLoading(false);
+      return;
+    }
+
+    // Redirect to dashboard
+    router.push('/dashboard');
+  }
+
+  async function handleGoogleSignIn() {
+    setIsLoading(true);
+    setError(null);
+
+    const result = await signInWithOAuth('google');
+
+    if (!result.success) {
+      setError(result.error);
+      setIsLoading(false);
+      return;
+    }
+
+    // Redirect to OAuth URL
+    if (result.data?.url) {
+      window.location.href = result.data.url;
+    }
+  }
+
+  async function handleFacebookSignIn() {
+    setIsLoading(true);
+    setError(null);
+
+    const result = await signInWithOAuth('facebook');
+
+    if (!result.success) {
+      setError(result.error);
+      setIsLoading(false);
+      return;
+    }
+
+    // Redirect to OAuth URL
+    if (result.data?.url) {
+      window.location.href = result.data.url;
+    }
+  }
+
   return (
     <div className="flex min-h-screen items-center justify-center bg-neutral-50 px-6 py-12">
       <div className="w-full max-w-md">
@@ -22,7 +92,15 @@ export default function LoginPage() {
 
         {/* Login Form */}
         <div className="rounded-2xl border border-neutral-200 bg-white p-8 shadow-lg">
-          <form className="space-y-6">
+          {/* Error Alert */}
+          {error && (
+            <Alert variant="danger" className="mb-6" onClose={() => setError(null)}>
+              <AlertTitle>Đăng nhập thất bại</AlertTitle>
+              <AlertDescription>{error}</AlertDescription>
+            </Alert>
+          )}
+
+          <form onSubmit={handleSubmit} className="space-y-6">
             {/* Email */}
             <Input
               label="Email"
@@ -31,6 +109,8 @@ export default function LoginPage() {
               name="email"
               placeholder="example@gmail.com"
               required
+              disabled={isLoading}
+              error={fieldErrors.email?.[0]}
             />
 
             {/* Password */}
@@ -41,13 +121,17 @@ export default function LoginPage() {
               name="password"
               placeholder="••••••••"
               required
+              disabled={isLoading}
+              error={fieldErrors.password?.[0]}
             />
 
             {/* Remember & Forgot */}
             <div className="flex items-center justify-between">
               <Checkbox
-                id="remember"
+                id="rememberMe"
+                name="rememberMe"
                 label="Ghi nhớ đăng nhập"
+                disabled={isLoading}
               />
               <Link
                 href="/forgot-password"
@@ -63,8 +147,9 @@ export default function LoginPage() {
               variant="primary"
               size="lg"
               className="w-full"
+              isLoading={isLoading}
             >
-              Đăng nhập
+              {isLoading ? 'Đang đăng nhập...' : 'Đăng nhập'}
             </Button>
           </form>
 
@@ -85,6 +170,8 @@ export default function LoginPage() {
               variant="outline"
               size="lg"
               className="w-full"
+              onClick={handleGoogleSignIn}
+              disabled={isLoading}
             >
               <svg className="mr-2 h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
                 <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
@@ -100,11 +187,13 @@ export default function LoginPage() {
               variant="outline"
               size="lg"
               className="w-full"
+              onClick={handleFacebookSignIn}
+              disabled={isLoading}
             >
               <svg className="mr-2 h-5 w-5 text-[#1877F2]" fill="currentColor" viewBox="0 0 24 24">
                 <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
               </svg>
-              Đăng nhập với Facebook
+              Đăng ký với Facebook
             </Button>
           </div>
         </div>

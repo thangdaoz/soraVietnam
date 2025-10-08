@@ -1,6 +1,7 @@
 ﻿import type { Metadata } from 'next';
 import { Inter, Poppins } from 'next/font/google';
 import Link from 'next/link';
+import { AuthButtons } from '@/components/AuthButtons';
 
 import './globals.css';
 
@@ -78,20 +79,7 @@ export default function RootLayout({
                 ))}
               </nav>
 
-              <div className="flex items-center gap-3 text-sm font-medium">
-                <Link
-                  href="/login"
-                  className="text-neutral-600 transition-colors hover:text-primary-600"
-                >
-                  Đăng nhập
-                </Link>
-                <Link 
-                  href="/sign-up" 
-                  className="rounded-lg bg-primary-600 px-6 py-2.5 text-white shadow-md transition-all hover:bg-primary-700 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-primary-600 focus:ring-offset-2"
-                >
-                  Bắt đầu ngay
-                </Link>
-              </div>
+              <AuthButtons />
             </div>
           </header>
 

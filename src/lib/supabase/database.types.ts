@@ -33,31 +33,43 @@ export interface Database {
           id: string;
           user_id: string;
           full_name: string | null;
+          email: string | null;
+          phone: string | null;
+          company: string | null;
           avatar_url: string | null;
-          credits: number;
+          credit_balance: number;
           total_videos_generated: number;
           created_at: string;
           updated_at: string;
+          deleted_at: string | null;
         };
         Insert: {
           id: string;
           user_id: string;
           full_name?: string | null;
+          email?: string | null;
+          phone?: string | null;
+          company?: string | null;
           avatar_url?: string | null;
-          credits?: number;
+          credit_balance?: number;
           total_videos_generated?: number;
           created_at?: string;
           updated_at?: string;
+          deleted_at?: string | null;
         };
         Update: {
           id?: string;
           user_id?: string;
           full_name?: string | null;
+          email?: string | null;
+          phone?: string | null;
+          company?: string | null;
           avatar_url?: string | null;
-          credits?: number;
+          credit_balance?: number;
           total_videos_generated?: number;
           created_at?: string;
           updated_at?: string;
+          deleted_at?: string | null;
         };
       };
       videos: {

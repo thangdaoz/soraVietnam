@@ -1,9 +1,90 @@
+'use client';
+
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
 import { Checkbox } from '@/components/ui/Checkbox';
+import { Alert, AlertTitle, AlertDescription } from '@/components/ui/Alert';
+import { signUp, signInWithOAuth } from '@/lib/actions/auth';
 
 export default function SignUpPage() {
+  const router = useRouter();
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string[]>>({});
+  const [success, setSuccess] = useState(false);
+
+  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setIsLoading(true);
+    setError(null);
+    setFieldErrors({});
+
+    const formData = new FormData(event.currentTarget);
+    
+    const result = await signUp(formData);
+
+    if (!result.success) {
+      setError(result.error);
+      if (result.errors) {
+        setFieldErrors(result.errors);
+      }
+      setIsLoading(false);
+      return;
+    }
+
+    // Show success message
+    setSuccess(true);
+    setIsLoading(false);
+
+    // Redirect after 2 seconds
+    setTimeout(() => {
+      if (result.data?.needsVerification) {
+        router.push('/auth/verify-email');
+      } else {
+        router.push('/dashboard');
+      }
+    }, 2000);
+  }
+
+  async function handleGoogleSignIn() {
+    setIsLoading(true);
+    setError(null);
+
+    const result = await signInWithOAuth('google');
+
+    if (!result.success) {
+      setError(result.error);
+      setIsLoading(false);
+      return;
+    }
+
+    // Redirect to OAuth URL
+    if (result.data?.url) {
+      window.location.href = result.data.url;
+    }
+  }
+
+  async function handleFacebookSignIn() {
+    setIsLoading(true);
+    setError(null);
+
+    const result = await signInWithOAuth('facebook');
+
+    if (!result.success) {
+      setError(result.error);
+      setIsLoading(false);
+      return;
+    }
+
+    // Redirect to OAuth URL
+    if (result.data?.url) {
+      window.location.href = result.data.url;
+    }
+  }
+
   return (
     <div className="flex min-h-screen items-center justify-center bg-neutral-50 px-6 py-12">
       <div className="w-full max-w-md">
@@ -22,7 +103,25 @@ export default function SignUpPage() {
 
         {/* Sign Up Form */}
         <div className="rounded-2xl border border-neutral-200 bg-white p-8 shadow-lg">
-          <form className="space-y-6">
+          {/* Success Alert */}
+          {success && (
+            <Alert variant="success" className="mb-6">
+              <AlertTitle>Đăng ký thành công!</AlertTitle>
+              <AlertDescription>
+                Vui lòng kiểm tra email để xác thực tài khoản của bạn.
+              </AlertDescription>
+            </Alert>
+          )}
+
+          {/* Error Alert */}
+          {error && (
+            <Alert variant="danger" className="mb-6" onClose={() => setError(null)}>
+              <AlertTitle>Đăng ký thất bại</AlertTitle>
+              <AlertDescription>{error}</AlertDescription>
+            </Alert>
+          )}
+
+          <form onSubmit={handleSubmit} className="space-y-6">
             {/* Full Name */}
             <Input
               label="Họ và tên"
@@ -31,6 +130,8 @@ export default function SignUpPage() {
               name="fullName"
               placeholder="Nguyễn Văn A"
               required
+              disabled={isLoading || success}
+              error={fieldErrors.fullName?.[0]}
             />
 
             {/* Email */}
@@ -41,6 +142,8 @@ export default function SignUpPage() {
               name="email"
               placeholder="example@gmail.com"
               required
+              disabled={isLoading || success}
+              error={fieldErrors.email?.[0]}
             />
 
             {/* Password */}
@@ -52,6 +155,8 @@ export default function SignUpPage() {
               placeholder="••••••••"
               helperText="Tối thiểu 8 ký tự, bao gồm chữ hoa, chữ thường và số"
               required
+              disabled={isLoading || success}
+              error={fieldErrors.password?.[0]}
             />
 
             {/* Confirm Password */}
@@ -62,6 +167,8 @@ export default function SignUpPage() {
               name="confirmPassword"
               placeholder="••••••••"
               required
+              disabled={isLoading || success}
+              error={fieldErrors.confirmPassword?.[0]}
             />
 
             {/* Terms & Conditions */}
@@ -80,6 +187,7 @@ export default function SignUpPage() {
                 </span>
               }
               required
+              disabled={isLoading || success}
             />
 
             {/* Submit Button */}
@@ -88,8 +196,10 @@ export default function SignUpPage() {
               variant="primary"
               size="lg"
               className="w-full"
+              isLoading={isLoading}
+              disabled={success}
             >
-              Tạo tài khoản
+              {isLoading ? 'Đang tạo tài khoản...' : 'Tạo tài khoản'}
             </Button>
           </form>
 
