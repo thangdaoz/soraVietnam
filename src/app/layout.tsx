@@ -1,7 +1,7 @@
 ﻿import type { Metadata } from 'next';
 import { Inter, Poppins } from 'next/font/google';
 import Link from 'next/link';
-import { AuthButtons } from '@/components/AuthButtons';
+import { Header } from '@/components/Header';
 
 import './globals.css';
 
@@ -26,12 +26,6 @@ export const metadata: Metadata = {
   keywords: ['AI video', 'text to video', 'image to video', 'video generation', 'Vietnam', 'Sora'],
 };
 
-const navigation = [
-  { href: '#how-it-works', label: 'Cách hoạt động' },
-  { href: '#features', label: 'Tính năng' },
-  { href: '#pricing', label: 'Bảng giá' },
-];
-
 const footerLinks = [
   { href: '/about', label: 'Về chúng tôi' },
   { href: '/terms', label: 'Điều khoản' },
@@ -55,33 +49,7 @@ export default function RootLayout({
             Bỏ qua điều hướng
           </a>
 
-          <header className="sticky top-0 z-40 border-b border-neutral-200 bg-white/95 backdrop-blur-sm">
-            <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-4 px-6 py-4">
-              <Link
-                href="/"
-                className="flex items-center gap-3 text-base font-semibold transition-opacity hover:opacity-80"
-              >
-                <span className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-primary-600 to-secondary-600 text-lg text-white shadow-lg">
-                  SV
-                </span>
-                <span className="text-neutral-900">Sora Vietnam</span>
-              </Link>
-
-              <nav className="hidden items-center gap-8 text-sm font-medium text-neutral-600 md:flex">
-                {navigation.map((item) => (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    className="transition-colors hover:text-primary-600"
-                  >
-                    {item.label}
-                  </Link>
-                ))}
-              </nav>
-
-              <AuthButtons />
-            </div>
-          </header>
+          <Header />
 
           <main id="main-content" className="flex-1">
             {children}

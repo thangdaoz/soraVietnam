@@ -36,8 +36,34 @@ export async function middleware(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  // Protected routes logic can be added here
-  // For now, we'll just refresh the session
+  // Define protected routes that require authentication
+  const protectedRoutes = ['/dashboard', '/profile', '/checkout', '/gallery'];
+  
+  // Define auth routes that should redirect to dashboard if already logged in
+  const authRoutes = ['/login', '/sign-up', '/forgot-password', '/reset-password'];
+  
+  const isProtectedRoute = protectedRoutes.some((route) => 
+    request.nextUrl.pathname.startsWith(route)
+  );
+  
+  const isAuthRoute = authRoutes.some((route) => 
+    request.nextUrl.pathname.startsWith(route)
+  );
+
+  // Redirect to login if trying to access protected route without authentication
+  if (isProtectedRoute && !user) {
+    const redirectUrl = request.nextUrl.clone();
+    redirectUrl.pathname = '/login';
+    redirectUrl.searchParams.set('redirectTo', request.nextUrl.pathname);
+    return NextResponse.redirect(redirectUrl);
+  }
+
+  // Redirect to dashboard if trying to access auth routes while already logged in
+  if (isAuthRoute && user) {
+    const redirectUrl = request.nextUrl.clone();
+    redirectUrl.pathname = '/dashboard';
+    return NextResponse.redirect(redirectUrl);
+  }
 
   return supabaseResponse;
 }

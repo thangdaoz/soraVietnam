@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { Button } from '@/components/ui/Button';
 import { signOut, getCurrentUser } from '@/lib/actions/auth';
@@ -15,6 +15,7 @@ interface UserData {
 
 export function AuthButtons() {
   const router = useRouter();
+  const pathname = usePathname();
   const [user, setUser] = useState<UserData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isSigningOut, setIsSigningOut] = useState(false);
@@ -26,14 +27,22 @@ export function AuthButtons() {
       setIsLoading(false);
     }
     loadUser();
-  }, []);
+  }, [pathname]); // Reload when pathname changes
 
   async function handleSignOut() {
     setIsSigningOut(true);
-    await signOut();
-    setUser(null);
-    router.push('/');
-    router.refresh();
+    const result = await signOut();
+    
+    if (result.success) {
+      setUser(null);
+      setIsSigningOut(false);
+      router.push('/');
+      router.refresh();
+    } else {
+      // If sign out failed, stop loading
+      setIsSigningOut(false);
+      alert(result.error || 'Đăng xuất thất bại');
+    }
   }
 
   if (isLoading) {
@@ -50,7 +59,7 @@ export function AuthButtons() {
       <div className="flex items-center gap-3 text-sm font-medium">
         {/* Credits Display */}
         <Link
-          href="/profile"
+          href="/checkout"
           className="flex items-center gap-2 rounded-lg bg-gradient-to-r from-primary-50 to-secondary-50 px-4 py-2 text-primary-700 transition-all hover:from-primary-100 hover:to-secondary-100"
         >
           <svg
@@ -75,6 +84,13 @@ export function AuthButtons() {
           className="text-neutral-600 transition-colors hover:text-primary-600"
         >
           Dashboard
+        </Link>
+
+        <Link
+          href="/profile"
+          className="text-neutral-600 transition-colors hover:text-primary-600"
+        >
+          Tài khoản
         </Link>
 
         {/* Sign Out Button */}

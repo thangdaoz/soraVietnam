@@ -45,6 +45,7 @@ export default function SignUpPage() {
         router.push('/auth/verify-email');
       } else {
         router.push('/dashboard');
+        router.refresh(); // Force refresh to update auth state
       }
     }, 2000);
   }

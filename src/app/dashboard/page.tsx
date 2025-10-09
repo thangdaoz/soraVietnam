@@ -24,37 +24,15 @@ export default function DashboardPage() {
 
   return (
     <div className="flex h-screen flex-col bg-neutral-50">
-      {/* Top Navigation */}
-      <header className="flex items-center justify-between border-b border-neutral-200 bg-white px-6 py-4 shadow-sm">
-        <div className="flex items-center gap-4">
-          <Link href="/dashboard" className="flex items-center gap-2 text-neutral-500 transition-colors hover:text-primary-600">
-            <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-            </svg>
-          </Link>
-          <h1 className="text-xl font-semibold text-neutral-900">Drafts</h1>
-        </div>
-
-        <div className="flex items-center gap-4">
-          <div className="flex items-center gap-2 rounded-lg border border-neutral-200 bg-neutral-50 px-4 py-2">
-            <span className="text-xl">💎</span>
-            <div className="text-left">
-              <p className="text-xs text-neutral-500">Credits</p>
-              <p className="text-sm font-bold text-neutral-900">250,000</p>
-            </div>
-          </div>
-          <Button variant="primary" size="sm">
-            <span className="mr-1">+</span> Nạp credits
-          </Button>
-          <Link href="/profile" className="flex h-10 w-10 items-center justify-center rounded-full bg-primary-600 text-sm font-semibold text-white hover:bg-primary-700">
-            U
-          </Link>
-        </div>
-      </header>
-
       {/* Main Content - Video Gallery */}
       <main className="flex-1 overflow-y-auto bg-neutral-50 px-6 py-8">
         <div className="mx-auto max-w-7xl">
+          {/* Page Title */}
+          <div className="mb-6">
+            <h1 className="text-2xl font-bold text-neutral-900">Dashboard</h1>
+            <p className="mt-1 text-sm text-neutral-600">Quản lý video và dự án của bạn</p>
+          </div>
+          
           {/* Video Gallery Grid */}
           <div className="grid grid-cols-1 gap-6 pb-40 sm:grid-cols-2 lg:grid-cols-4">
             {mockGalleryVideos.map((video) => (

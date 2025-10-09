@@ -1,54 +1,186 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
+import { Alert } from '@/components/ui/Alert';
+import { updateProfile, changePassword, deleteAccount, getCurrentUser } from '@/lib/actions/auth';
+import { createClient } from '@/lib/supabase/client';
+import type { Database } from '@/lib/supabase/database.types';
+
+type Profile = Database['public']['Tables']['profiles']['Row'];
 
 export default function ProfilePage() {
+  const router = useRouter();
   const [activeTab, setActiveTab] = useState<'profile' | 'billing' | 'credits'>('profile');
+  const [loading, setLoading] = useState(true);
+  const [user, setUser] = useState<any>(null);
+  const [profile, setProfile] = useState<Profile | null>(null);
+  
+  // Profile form state
+  const [fullName, setFullName] = useState('');
+  const [phone, setPhone] = useState('');
+  const [company, setCompany] = useState('');
+  const [profileLoading, setProfileLoading] = useState(false);
+  const [profileError, setProfileError] = useState('');
+  const [profileSuccess, setProfileSuccess] = useState('');
+  
+  // Password form state
+  const [currentPassword, setCurrentPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [passwordLoading, setPasswordLoading] = useState(false);
+  const [passwordError, setPasswordError] = useState('');
+  const [passwordSuccess, setPasswordSuccess] = useState('');
+  
+  // Delete account state
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [deleteLoading, setDeleteLoading] = useState(false);
+
+  // Load user data
+  useEffect(() => {
+    async function loadUserData() {
+      try {
+        const supabase = createClient();
+        
+        // Get authenticated user
+        const { data: { user: authUser }, error: authError } = await supabase.auth.getUser();
+        
+        if (authError || !authUser) {
+          router.push('/login');
+          return;
+        }
+        
+        setUser(authUser);
+        
+        // Get profile data
+        const { data: profileData, error: profileError } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('user_id', authUser.id)
+          .single<Profile>();
+        
+        if (!profileError && profileData) {
+          setProfile(profileData);
+          setFullName(profileData.full_name || '');
+          setPhone(profileData.phone || '');
+          setCompany(profileData.company || '');
+        }
+      } catch (error) {
+        console.error('Error loading user data:', error);
+      } finally {
+        setLoading(false);
+      }
+    }
+    
+    loadUserData();
+  }, [router]);
+
+  // Handle profile update
+  async function handleProfileUpdate(e: React.FormEvent) {
+    e.preventDefault();
+    setProfileLoading(true);
+    setProfileError('');
+    setProfileSuccess('');
+    
+    const formData = new FormData();
+    formData.append('fullName', fullName);
+    if (phone) formData.append('phone', phone);
+    if (company) formData.append('company', company);
+    
+    const result = await updateProfile(formData);
+    
+    setProfileLoading(false);
+    
+    if (result.success) {
+      setProfileSuccess('Cập nhật thông tin thành công!');
+      // Reload profile data
+      const supabase = createClient();
+      const { data } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('user_id', user?.id)
+        .single();
+      if (data) {
+        setProfile(data as Profile);
+      }
+    } else {
+      setProfileError(result.error || 'Có lỗi xảy ra khi cập nhật thông tin');
+    }
+  }
+
+  // Handle password change
+  async function handlePasswordChange(e: React.FormEvent) {
+    e.preventDefault();
+    setPasswordLoading(true);
+    setPasswordError('');
+    setPasswordSuccess('');
+    
+    if (newPassword !== confirmPassword) {
+      setPasswordError('Mật khẩu xác nhận không khớp');
+      setPasswordLoading(false);
+      return;
+    }
+    
+    const formData = new FormData();
+    formData.append('currentPassword', currentPassword);
+    formData.append('newPassword', newPassword);
+    formData.append('confirmPassword', confirmPassword);
+    
+    const result = await changePassword(formData);
+    
+    setPasswordLoading(false);
+    
+    if (result.success) {
+      setPasswordSuccess('Đổi mật khẩu thành công!');
+      // Clear form
+      setCurrentPassword('');
+      setNewPassword('');
+      setConfirmPassword('');
+    } else {
+      setPasswordError(result.error || 'Có lỗi xảy ra khi đổi mật khẩu');
+    }
+  }
+
+  // Handle account deletion
+  async function handleDeleteAccount() {
+    if (!showDeleteConfirm) {
+      setShowDeleteConfirm(true);
+      return;
+    }
+    
+    setDeleteLoading(true);
+    
+    const result = await deleteAccount();
+    
+    if (result.success) {
+      router.push('/');
+    } else {
+      alert(result.error || 'Có lỗi xảy ra khi xóa tài khoản');
+      setDeleteLoading(false);
+    }
+  }
+
+  if (loading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <div className="text-center">
+          <div className="mb-4 h-8 w-8 animate-spin rounded-full border-4 border-primary-600 border-t-transparent"></div>
+          <p className="text-neutral-600">Đang tải...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-neutral-50">
-      {/* Header */}
-      <header className="sticky top-0 z-40 border-b border-neutral-200 bg-white/95 backdrop-blur-sm">
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
-          <Link href="/" className="flex items-center gap-3">
-            <span className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-primary-600 to-secondary-600 text-lg text-white shadow-lg">
-              SV
-            </span>
-            <span className="text-lg font-bold text-neutral-900">Sora Vietnam</span>
-          </Link>
-
-          <nav className="hidden items-center gap-6 md:flex">
-            <Link href="/dashboard" className="text-sm font-medium text-neutral-600 hover:text-primary-600">
-              Dashboard
-            </Link>
-            <Link href="/profile" className="text-sm font-medium text-primary-600">
-              Tài khoản
-            </Link>
-          </nav>
-
-          <div className="flex items-center gap-4">
-            <div className="flex items-center gap-2 rounded-lg border border-neutral-200 bg-neutral-50 px-4 py-2">
-              <span className="text-2xl">💎</span>
-              <div className="text-left">
-                <p className="text-xs text-neutral-500">Credits</p>
-                <p className="text-sm font-bold text-neutral-900">250,000</p>
-              </div>
-            </div>
-            <Button variant="primary" size="sm">
-              <span className="mr-1">+</span> Nạp credits
-            </Button>
-          </div>
-        </div>
-      </header>
-
       {/* Main Content */}
       <div className="mx-auto max-w-7xl px-6 py-8">
-        {/* Header */}
+        {/* Page Header */}
         <div className="mb-8">
           <h1 className="mb-2 text-3xl font-bold text-neutral-900">Cài đặt tài khoản</h1>
           <p className="text-neutral-600">Quản lý thông tin cá nhân và lịch sử giao dịch</p>
@@ -97,55 +229,81 @@ export default function ProfilePage() {
                 <CardDescription>Cập nhật thông tin tài khoản của bạn</CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
-                <div className="flex items-center gap-6">
-                  <div className="flex h-24 w-24 items-center justify-center rounded-full bg-gradient-to-br from-primary-600 to-secondary-600 text-3xl text-white shadow-lg">
-                    NA
-                  </div>
-                  <div className="space-y-2">
-                    <p className="text-sm text-neutral-600">Ảnh đại diện</p>
-                    <div className="flex gap-2">
-                      <Button variant="outline" size="sm">
-                        Tải lên ảnh mới
+                {profileSuccess && (
+                  <Alert variant="success">{profileSuccess}</Alert>
+                )}
+                {profileError && (
+                  <Alert variant="danger">{profileError}</Alert>
+                )}
+                
+                <form onSubmit={handleProfileUpdate}>
+                  <div className="space-y-6">
+                    <div className="flex items-center gap-6">
+                      <div className="flex h-24 w-24 items-center justify-center rounded-full bg-gradient-to-br from-primary-600 to-secondary-600 text-3xl text-white shadow-lg">
+                        {(fullName || 'NA').substring(0, 2).toUpperCase()}
+                      </div>
+                      <div className="space-y-2">
+                        <p className="text-sm text-neutral-600">Ảnh đại diện</p>
+                        <div className="flex gap-2">
+                          <Button type="button" variant="outline" size="sm" disabled>
+                            Tải lên ảnh mới
+                          </Button>
+                          <Button type="button" variant="outline" size="sm" disabled>
+                            Xóa
+                          </Button>
+                        </div>
+                        <p className="text-xs text-neutral-500">Tính năng sẽ sớm có</p>
+                      </div>
+                    </div>
+
+                    <div className="grid gap-6 md:grid-cols-2">
+                      <Input
+                        label="Họ và tên"
+                        type="text"
+                        id="fullName"
+                        value={fullName}
+                        onChange={(e) => setFullName(e.target.value)}
+                        required
+                      />
+                      <Input
+                        label="Email"
+                        type="email"
+                        id="email"
+                        value={user?.email || ''}
+                        disabled
+                      />
+                      <Input
+                        label="Số điện thoại"
+                        type="tel"
+                        id="phone"
+                        placeholder="+84 xxx xxx xxx"
+                        value={phone}
+                        onChange={(e) => setPhone(e.target.value)}
+                      />
+                      <Input
+                        label="Công ty/Tổ chức"
+                        type="text"
+                        id="company"
+                        placeholder="Tên công ty (tùy chọn)"
+                        value={company}
+                        onChange={(e) => setCompany(e.target.value)}
+                      />
+                    </div>
+
+                    <div className="flex justify-end gap-3">
+                      <Button type="button" variant="outline" onClick={() => {
+                        setFullName(profile?.full_name || '');
+                        setPhone(profile?.phone || '');
+                        setCompany(profile?.company || '');
+                      }}>
+                        Hủy
                       </Button>
-                      <Button variant="outline" size="sm">
-                        Xóa
+                      <Button type="submit" variant="primary" disabled={profileLoading}>
+                        {profileLoading ? 'Đang lưu...' : 'Lưu thay đổi'}
                       </Button>
                     </div>
                   </div>
-                </div>
-
-                <div className="grid gap-6 md:grid-cols-2">
-                  <Input
-                    label="Họ và tên"
-                    type="text"
-                    id="fullName"
-                    defaultValue="Nguyễn Văn A"
-                  />
-                  <Input
-                    label="Email"
-                    type="email"
-                    id="email"
-                    defaultValue="nguyen@example.com"
-                    disabled
-                  />
-                  <Input
-                    label="Số điện thoại"
-                    type="tel"
-                    id="phone"
-                    placeholder="+84 xxx xxx xxx"
-                  />
-                  <Input
-                    label="Công ty/Tổ chức"
-                    type="text"
-                    id="company"
-                    placeholder="Tên công ty (tùy chọn)"
-                  />
-                </div>
-
-                <div className="flex justify-end gap-3">
-                  <Button variant="outline">Hủy</Button>
-                  <Button variant="primary">Lưu thay đổi</Button>
-                </div>
+                </form>
               </CardContent>
             </Card>
 
@@ -155,30 +313,58 @@ export default function ProfilePage() {
                 <CardDescription>Cập nhật mật khẩu để bảo mật tài khoản</CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
-                <Input
-                  label="Mật khẩu hiện tại"
-                  type="password"
-                  id="currentPassword"
-                  placeholder="••••••••"
-                />
-                <Input
-                  label="Mật khẩu mới"
-                  type="password"
-                  id="newPassword"
-                  placeholder="••••••••"
-                  helperText="Tối thiểu 8 ký tự, bao gồm chữ hoa, chữ thường và số"
-                />
-                <Input
-                  label="Xác nhận mật khẩu mới"
-                  type="password"
-                  id="confirmPassword"
-                  placeholder="••••••••"
-                />
+                {passwordSuccess && (
+                  <Alert variant="success">{passwordSuccess}</Alert>
+                )}
+                {passwordError && (
+                  <Alert variant="danger">{passwordError}</Alert>
+                )}
+                
+                <form onSubmit={handlePasswordChange}>
+                  <div className="space-y-6">
+                    <Input
+                      label="Mật khẩu hiện tại"
+                      type="password"
+                      id="currentPassword"
+                      placeholder="••••••••"
+                      value={currentPassword}
+                      onChange={(e) => setCurrentPassword(e.target.value)}
+                      required
+                    />
+                    <Input
+                      label="Mật khẩu mới"
+                      type="password"
+                      id="newPassword"
+                      placeholder="••••••••"
+                      helperText="Tối thiểu 8 ký tự, bao gồm chữ hoa, chữ thường và số"
+                      value={newPassword}
+                      onChange={(e) => setNewPassword(e.target.value)}
+                      required
+                    />
+                    <Input
+                      label="Xác nhận mật khẩu mới"
+                      type="password"
+                      id="confirmPassword"
+                      placeholder="••••••••"
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      required
+                    />
 
-                <div className="flex justify-end gap-3">
-                  <Button variant="outline">Hủy</Button>
-                  <Button variant="primary">Đổi mật khẩu</Button>
-                </div>
+                    <div className="flex justify-end gap-3">
+                      <Button type="button" variant="outline" onClick={() => {
+                        setCurrentPassword('');
+                        setNewPassword('');
+                        setConfirmPassword('');
+                      }}>
+                        Hủy
+                      </Button>
+                      <Button type="submit" variant="primary" disabled={passwordLoading}>
+                        {passwordLoading ? 'Đang xử lý...' : 'Đổi mật khẩu'}
+                      </Button>
+                    </div>
+                  </div>
+                </form>
               </CardContent>
             </Card>
 
@@ -190,9 +376,40 @@ export default function ProfilePage() {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <Button variant="outline" className="border-red-600 text-red-600 hover:bg-red-50">
-                  Xóa tài khoản
-                </Button>
+                {!showDeleteConfirm ? (
+                  <Button 
+                    type="button"
+                    variant="outline" 
+                    className="border-red-600 text-red-600 hover:bg-red-50"
+                    onClick={handleDeleteAccount}
+                  >
+                    Xóa tài khoản
+                  </Button>
+                ) : (
+                  <div className="space-y-4">
+                    <Alert variant="danger">
+                      Bạn có chắc chắn muốn xóa tài khoản? Hành động này không thể hoàn tác!
+                    </Alert>
+                    <div className="flex gap-3">
+                      <Button 
+                        type="button"
+                        variant="outline"
+                        onClick={() => setShowDeleteConfirm(false)}
+                      >
+                        Hủy
+                      </Button>
+                      <Button 
+                        type="button"
+                        variant="primary"
+                        className="bg-red-600 hover:bg-red-700"
+                        onClick={handleDeleteAccount}
+                        disabled={deleteLoading}
+                      >
+                        {deleteLoading ? 'Đang xóa...' : 'Xác nhận xóa tài khoản'}
+                      </Button>
+                    </div>
+                  </div>
+                )}
               </CardContent>
             </Card>
           </div>

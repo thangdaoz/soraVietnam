@@ -1,7 +1,7 @@
 'use client';
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, useEffect } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
@@ -11,9 +11,18 @@ import { signIn, signInWithOAuth } from '@/lib/actions/auth';
 
 export default function LoginPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string[]>>({});
+  const [redirectTo, setRedirectTo] = useState('/dashboard');
+
+  useEffect(() => {
+    const redirect = searchParams.get('redirectTo');
+    if (redirect) {
+      setRedirectTo(redirect);
+    }
+  }, [searchParams]);
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -34,8 +43,9 @@ export default function LoginPage() {
       return;
     }
 
-    // Redirect to dashboard
-    router.push('/dashboard');
+    // Redirect to original destination or dashboard
+    router.push(redirectTo);
+    router.refresh(); // Force refresh to update auth state
   }
 
   async function handleGoogleSignIn() {
