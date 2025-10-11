@@ -63,41 +63,41 @@
 
 ### Week 9-12: Core Video Generation Features
 
-- [ ] **Text-to-Video Module**
-  - [ ] Create video generation API wrapper
-  - [ ] Build prompt input interface
-  - [ ] Implement video request submission
-  - [ ] Set up webhook/polling for generation status
-  - [ ] Handle video storage and retrieval
-  - [ ] Create video preview functionality
-- [ ] **Image-to-Video Module**
+- [x] **Text-to-Video Module** ✅ COMPLETED (Oct 11, 2025)
+  - [x] Create video generation API wrapper
+  - [x] Build prompt input interface
+  - [x] Implement video request submission
+  - [x] Set up webhook/polling for generation status
+  - [x] Handle video storage and retrieval
+  - [x] Create video preview functionality
+- [ ] **Image-to-Video Module** (Deferred to Phase 5)
   - [ ] Build image upload interface
   - [ ] Implement image processing/validation
   - [ ] Integrate with video API for image-to-video
   - [ ] Handle combined image + text prompts
-- [ ] **Video Gallery**
-  - [ ] Create video list/grid view
-  - [ ] Implement video player
-  - [ ] Add download functionality
-  - [ ] Build share functionality
-  - [ ] Create video deletion feature
-  - [ ] Add filtering and search
+- [x] **Video Gallery** ✅ COMPLETED (Oct 11, 2025)
+  - [x] Create video list/grid view
+  - [x] Implement video player
+  - [x] Add download functionality
+  - [ ] Build share functionality (Future enhancement)
+  - [x] Create video deletion feature
+  - [ ] Add filtering and search (Future enhancement)
 
 ### Week 13-16: Payment & Credit System
 
-- [ ] **Credit System**
-  - [ ] Create credit balance display
-  - [ ] Implement credit deduction logic
-  - [ ] Build transaction history page
-  - [ ] Create credit package definitions
-- [ ] **Payment Integration (Casso)**
-  - [ ] Set up Casso payment gateway account
-  - [ ] Integrate Casso API
-  - [ ] Create payment checkout flow
-  - [ ] Implement webhook for payment confirmation
-  - [ ] Build payment success/failure pages
-  - [ ] Create invoice/receipt generation
-  - [ ] Add refund handling logic
+- [x] **Credit System** ✅ COMPLETED (Oct 11, 2025)
+  - [x] Create credit balance display
+  - [x] Implement credit deduction logic
+  - [x] Build transaction history page
+  - [x] Create credit package definitions
+- [x] **Payment Integration (PayOS)** ✅ COMPLETED (Oct 11, 2025)
+  - [x] Set up PayOS payment gateway integration
+  - [x] Integrate PayOS API (Embedded Checkout)
+  - [x] Create payment checkout flow
+  - [x] Implement webhook for payment confirmation
+  - [x] Build payment success/failure pages
+  - [ ] Create invoice/receipt generation (Future enhancement)
+  - [ ] Add refund handling logic (Future enhancement)
 - [ ] **Pricing Tiers**
   - [ ] Implement starter/basic/premium tiers
   - [ ] Create pricing calculator

@@ -9,17 +9,19 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/com
 import { Badge } from '@/components/ui/Badge';
 import { Alert } from '@/components/ui/Alert';
 import { updateProfile, changePassword, deleteAccount, getCurrentUser } from '@/lib/actions/auth';
+import { getTransactionHistory } from '@/lib/actions/payment';
 import { createClient } from '@/lib/supabase/client';
-import type { Database } from '@/lib/supabase/database.types';
-
-type Profile = Database['public']['Tables']['profiles']['Row'];
 
 export default function ProfilePage() {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<'profile' | 'billing' | 'credits'>('profile');
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState<any>(null);
-  const [profile, setProfile] = useState<Profile | null>(null);
+  const [profile, setProfile] = useState<any>(null);
+  
+  // Transaction state
+  const [transactions, setTransactions] = useState<any[]>([]);
+  const [transactionsLoading, setTransactionsLoading] = useState(false);
   
   // Profile form state
   const [fullName, setFullName] = useState('');
@@ -62,7 +64,7 @@ export default function ProfilePage() {
           .from('profiles')
           .select('*')
           .eq('user_id', authUser.id)
-          .single<Profile>();
+          .single();
         
         if (!profileError && profileData) {
           setProfile(profileData);
@@ -79,6 +81,22 @@ export default function ProfilePage() {
     
     loadUserData();
   }, [router]);
+
+  // Load transactions when billing tab is active
+  useEffect(() => {
+    async function loadTransactions() {
+      if (activeTab === 'billing' && transactions.length === 0) {
+        setTransactionsLoading(true);
+        const result = await getTransactionHistory(50);
+        if (result.success && result.transactions) {
+          setTransactions(result.transactions);
+        }
+        setTransactionsLoading(false);
+      }
+    }
+    
+    loadTransactions();
+  }, [activeTab, transactions.length]);
 
   // Handle profile update
   async function handleProfileUpdate(e: React.FormEvent) {
@@ -106,7 +124,7 @@ export default function ProfilePage() {
         .eq('user_id', user?.id)
         .single();
       if (data) {
-        setProfile(data as Profile);
+        setProfile(data);
       }
     } else {
       setProfileError(result.error || 'Có lỗi xảy ra khi cập nhật thông tin');
@@ -424,72 +442,111 @@ export default function ProfilePage() {
                 <CardDescription>Xem tất cả các giao dịch credits và video</CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="overflow-x-auto">
-                  <table className="w-full">
-                    <thead>
-                      <tr className="border-b border-neutral-200">
-                        <th className="pb-3 text-left text-sm font-medium text-neutral-600">Ngày</th>
-                        <th className="pb-3 text-left text-sm font-medium text-neutral-600">Mô tả</th>
-                        <th className="pb-3 text-right text-sm font-medium text-neutral-600">Số lượng</th>
-                        <th className="pb-3 text-right text-sm font-medium text-neutral-600">Số dư</th>
-                        <th className="pb-3 text-right text-sm font-medium text-neutral-600">Trạng thái</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-neutral-200">
-                      <tr className="text-sm">
-                        <td className="py-4 text-neutral-600">07/10/2025</td>
-                        <td className="py-4 text-neutral-900">Nạp credits - Gói Basic</td>
-                        <td className="py-4 text-right font-medium text-green-600">+900,000</td>
-                        <td className="py-4 text-right text-neutral-900">1,150,000</td>
-                        <td className="py-4 text-right">
-                          <Badge variant="success">Thành công</Badge>
-                        </td>
-                      </tr>
-                      <tr className="text-sm">
-                        <td className="py-4 text-neutral-600">07/10/2025</td>
-                        <td className="py-4 text-neutral-900">Tạo video - Bãi biển hoàng hôn</td>
-                        <td className="py-4 text-right font-medium text-red-600">-5,000</td>
-                        <td className="py-4 text-right text-neutral-900">250,000</td>
-                        <td className="py-4 text-right">
-                          <Badge variant="info">Đã xử lý</Badge>
-                        </td>
-                      </tr>
-                      <tr className="text-sm">
-                        <td className="py-4 text-neutral-600">06/10/2025</td>
-                        <td className="py-4 text-neutral-900">Tạo video - Rừng nhiệt đới</td>
-                        <td className="py-4 text-right font-medium text-red-600">-5,000</td>
-                        <td className="py-4 text-right text-neutral-900">255,000</td>
-                        <td className="py-4 text-right">
-                          <Badge variant="info">Đã xử lý</Badge>
-                        </td>
-                      </tr>
-                      <tr className="text-sm">
-                        <td className="py-4 text-neutral-600">05/10/2025</td>
-                        <td className="py-4 text-neutral-900">Tạo video - Phố cổ Hà Nội</td>
-                        <td className="py-4 text-right font-medium text-red-600">-10,000</td>
-                        <td className="py-4 text-right text-neutral-900">260,000</td>
-                        <td className="py-4 text-right">
-                          <Badge variant="info">Đã xử lý</Badge>
-                        </td>
-                      </tr>
-                      <tr className="text-sm">
-                        <td className="py-4 text-neutral-600">03/10/2025</td>
-                        <td className="py-4 text-neutral-900">Nạp credits - Gói Starter</td>
-                        <td className="py-4 text-right font-medium text-green-600">+300,000</td>
-                        <td className="py-4 text-right text-neutral-900">270,000</td>
-                        <td className="py-4 text-right">
-                          <Badge variant="success">Thành công</Badge>
-                        </td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </div>
+                {transactionsLoading ? (
+                  <div className="py-12 text-center">
+                    <div className="mb-4 inline-block h-8 w-8 animate-spin rounded-full border-4 border-primary-600 border-t-transparent"></div>
+                    <p className="text-sm text-neutral-600">Đang tải lịch sử giao dịch...</p>
+                  </div>
+                ) : transactions.length === 0 ? (
+                  <div className="py-12 text-center">
+                    <div className="mb-4 text-5xl">📋</div>
+                    <h3 className="mb-2 text-lg font-medium text-neutral-900">Chưa có giao dịch</h3>
+                    <p className="mb-6 text-sm text-neutral-600">
+                      Bạn chưa có giao dịch nào. Mua credits để bắt đầu!
+                    </p>
+                    <Link href="/checkout">
+                      <Button variant="primary" size="sm">
+                        Mua credits ngay
+                      </Button>
+                    </Link>
+                  </div>
+                ) : (
+                  <>
+                    <div className="overflow-x-auto">
+                      <table className="w-full">
+                        <thead>
+                          <tr className="border-b border-neutral-200">
+                            <th className="pb-3 text-left text-sm font-medium text-neutral-600">Ngày</th>
+                            <th className="pb-3 text-left text-sm font-medium text-neutral-600">Mô tả</th>
+                            <th className="pb-3 text-left text-sm font-medium text-neutral-600">Loại</th>
+                            <th className="pb-3 text-right text-sm font-medium text-neutral-600">Số tiền</th>
+                            <th className="pb-3 text-right text-sm font-medium text-neutral-600">Credits</th>
+                            <th className="pb-3 text-right text-sm font-medium text-neutral-600">Trạng thái</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-neutral-200">
+                          {transactions.map((transaction) => {
+                            const createdAt = new Date(transaction.created_at);
+                            const isCredit = transaction.credits > 0;
+                            const typeLabels: Record<string, string> = {
+                              purchase: 'Mua credits',
+                              video_generation: 'Tạo video',
+                              refund: 'Hoàn tiền',
+                              bonus: 'Thưởng',
+                            };
+                            const statusLabels: Record<string, { label: string; variant: 'success' | 'warning' | 'danger' | 'info' }> = {
+                              completed: { label: 'Thành công', variant: 'success' },
+                              pending: { label: 'Đang xử lý', variant: 'warning' },
+                              failed: { label: 'Thất bại', variant: 'danger' },
+                              cancelled: { label: 'Đã hủy', variant: 'danger' },
+                            };
 
-                <div className="mt-6 flex justify-center">
-                  <Button variant="outline" size="sm">
-                    Tải thêm giao dịch
-                  </Button>
-                </div>
+                            return (
+                              <tr key={transaction.id} className="text-sm">
+                                <td className="py-4 text-neutral-600">
+                                  {createdAt.toLocaleDateString('vi-VN')}
+                                  <br />
+                                  <span className="text-xs text-neutral-500">
+                                    {createdAt.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })}
+                                  </span>
+                                </td>
+                                <td className="py-4 text-neutral-900">
+                                  {transaction.description || typeLabels[transaction.type] || transaction.type}
+                                  {transaction.payment_id && (
+                                    <div className="text-xs text-neutral-500">
+                                      Mã GD: {transaction.payment_id}
+                                    </div>
+                                  )}
+                                </td>
+                                <td className="py-4">
+                                  <span className="rounded-full bg-neutral-100 px-2 py-1 text-xs text-neutral-700">
+                                    {typeLabels[transaction.type] || transaction.type}
+                                  </span>
+                                </td>
+                                <td className="py-4 text-right text-neutral-900">
+                                  {transaction.amount_vnd ? (
+                                    new Intl.NumberFormat('vi-VN', {
+                                      style: 'currency',
+                                      currency: 'VND',
+                                    }).format(transaction.amount_vnd)
+                                  ) : (
+                                    '-'
+                                  )}
+                                </td>
+                                <td className={`py-4 text-right font-medium ${isCredit ? 'text-green-600' : 'text-red-600'}`}>
+                                  {isCredit ? '+' : ''}{transaction.credits.toLocaleString('vi-VN')}
+                                </td>
+                                <td className="py-4 text-right">
+                                  <Badge variant={statusLabels[transaction.status]?.variant || 'info'}>
+                                    {statusLabels[transaction.status]?.label || transaction.status}
+                                  </Badge>
+                                </td>
+                              </tr>
+                            );
+                          })}
+                        </tbody>
+                      </table>
+                    </div>
+
+                    {transactions.length >= 50 && (
+                      <div className="mt-6 flex justify-center">
+                        <Button variant="outline" size="sm">
+                          Tải thêm giao dịch
+                        </Button>
+                      </div>
+                    )}
+                  </>
+                )}
               </CardContent>
             </Card>
           </div>

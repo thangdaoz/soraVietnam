@@ -40,6 +40,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="vi" className={`${inter.variable} ${poppins.variable}`}>
+      <head>
+        <script src="https://cdn.payos.vn/payos-checkout/v1/stable/payos-initialize.js" async></script>
+      </head>
       <body className="bg-neutral-50 text-neutral-900 antialiased">
         <div className="flex min-h-screen flex-col">
           <a
