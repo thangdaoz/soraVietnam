@@ -1,7 +1,132 @@
 ---
+# Third Service API Documen---
 # Third Service API Documentation
 
 ## POST /api/v1/jobs/createTask
+
+### Create Task
+
+Create a new generation task
+
+### Request Parameters
+
+The API accepts a JSON payload with the following structure:
+
+#### Request Body Structure
+
+```json
+{
+  "model": "string",
+  "callBackUrl": "string (optional)",
+  "input": {
+    // Input parameters based on form configuration
+  }
+}
+```
+
+#### Root Level Parameters
+
+| Parameter | Required | Type | Description | Example |
+|-----------|----------|------|-------------|---------|
+| model | Yes | string | The model name to use for generation | "sora-2-text-to-video" or "sora-2-image-to-video" |
+| callBackUrl | No | string | Callback URL for task completion notifications. Optional parameter. If provided, the system will send POST requests to this URL when the task completes (success or failure). If not provided, no callback notifications will be sent. | "https://your-domain.com/api/callback" |
+
+---
+
+## Text-to-Video Model
+
+### Input Object Parameters (sora-2-text-to-video)
+
+| Parameter | Required | Type | Description | Example |
+|-----------|----------|------|-------------|---------|
+| input.prompt | Yes | string | The text prompt describing the desired video motion<br>Max length: 5000 characters | "A professor stands at the front of a lively classroom, enthusiastically giving a lecture. On the blackboard behind him are colorful chalk diagrams. With an animated gesture, he declares to the students: \"Sora 2 is now available on Kie AI, making it easier than ever to create stunning videos.\" The students listen attentively, some smiling and taking notes." |
+| input.aspect_ratio | No | string | This parameter defines the aspect ratio of the image.<br>Available options: portrait, landscape | "landscape" |
+
+### Request Example (Text-to-Video)
+
+#### JavaScript
+
+```javascript
+const response = await fetch('https://api.kie.ai/api/v1/jobs/createTask', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+    'Authorization': 'Bearer YOUR_API_KEY'
+  },
+  body: JSON.stringify({
+    model: 'sora-2-text-to-video',
+    callBackUrl: 'https://your-domain.com/api/callback',
+    input: {
+      "prompt": "A professor stands at the front of a lively classroom, enthusiastically giving a lecture. On the blackboard behind him are colorful chalk diagrams. With an animated gesture, he declares to the students: "Sora 2 is now available on Kie AI, making it easier than ever to create stunning videos." The students listen attentively, some smiling and taking notes.",
+      "aspect_ratio": "landscape"
+    }
+  })
+});
+
+const result = await response.json();
+console.log(result);
+```
+
+---
+
+## Image-to-Video Model
+
+### Input Object Parameters (sora-2-image-to-video)
+
+| Parameter | Required | Type | Description | Example |
+|-----------|----------|------|-------------|---------|
+| input.prompt | Yes | string | The text prompt describing the desired video motion<br>Max length: 5000 characters | "A claymation conductor passionately leads a claymation orchestra, while the entire group joyfully sings in chorus the phrase: \"Sora 2 is now available on Kie AI.\"" |
+| input.image_urls | Yes | array(string) | Array of image URLs to use as the first frame. Must be publicly accessible<br>Accepted types: image/jpeg, image/png, image/webp<br>Max size: 10.0MB | ["https://file.aiquickdraw.com/custom-page/akr/section-images/17594315607644506ltpf.jpg"] |
+| input.aspect_ratio | No | string | This parameter defines the aspect ratio of the image.<br>Available options: portrait, landscape | "landscape" |
+
+### Request Example (Image-to-Video)
+
+#### cURL
+
+```bash
+curl -X POST "https://api.kie.ai/api/v1/jobs/createTask" \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -d '{
+    "model": "sora-2-image-to-video",
+    "callBackUrl": "https://your-domain.com/api/callback",
+    "input": {
+      "prompt": "A claymation conductor passionately leads a claymation orchestra, while the entire group joyfully sings in chorus the phrase: \"Sora 2 is now available on Kie AI.\"",
+      "image_urls": [
+        "https://file.aiquickdraw.com/custom-page/akr/section-images/17594315607644506ltpf.jpg"
+      ],
+      "aspect_ratio": "landscape"
+    }
+}'
+```
+
+#### JavaScript
+
+```javascript
+const response = await fetch('https://api.kie.ai/api/v1/jobs/createTask', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+    'Authorization': 'Bearer YOUR_API_KEY'
+  },
+  body: JSON.stringify({
+    model: 'sora-2-image-to-video',
+    callBackUrl: 'https://your-domain.com/api/callback',
+    input: {
+      "prompt": "A claymation conductor passionately leads a claymation orchestra, while the entire group joyfully sings in chorus the phrase: \"Sora 2 is now available on Kie AI.\"",
+      "image_urls": [
+        "https://file.aiquickdraw.com/custom-page/akr/section-images/17594315607644506ltpf.jpg"
+      ],
+      "aspect_ratio": "landscape"
+    }
+  })
+});
+
+const result = await response.json();
+console.log(result);
+```
+
+---## POST /api/v1/jobs/createTask
 
 ### Create Task
 

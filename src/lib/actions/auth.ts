@@ -709,6 +709,14 @@ export async function getCurrentUser() {
       .eq('id', user.id)
       .single();
 
+    const profileData = profile as any;
+    const creditBalance =
+      typeof profileData?.credits === 'number'
+        ? profileData.credits
+        : typeof profileData?.credit_balance === 'number'
+          ? profileData.credit_balance
+          : 0;
+
     return {
       id: user.id,
       email: user.email,
@@ -716,7 +724,7 @@ export async function getCurrentUser() {
       phone: (profile as any)?.phone || '',
       company: (profile as any)?.company || '',
       avatarUrl: (profile as any)?.avatar_url || '',
-      creditBalance: (profile as any)?.credit_balance || 0,
+      creditBalance,
       createdAt: user.created_at,
     };
   } catch (error) {
